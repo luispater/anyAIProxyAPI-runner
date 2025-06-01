@@ -1,0 +1,172 @@
+version: "1"
+name: "chat_completions"
+need_report_token: false
+workflow:
+  ####################### Start Click the new chat button #######################
+  - index: 100
+    action: "Click"
+    params:
+      - 'a[data-testid="create-new-chat-button"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "CONTINUE"
+  ####################### End Click the new chat button #######################
+
+  - index: 200
+    action: "DoRunner"
+    params:
+      - "choose-model"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILBACK"
+
+  ####################### Start Click temporary chat Button #######################
+  - index: 300
+    action: "Click"
+    description: "Click the temporary chat button"
+    params: ['button[aria-label="Turn on temporary chat"].rounded-full', '2500']
+    result:
+      - result_index: 0 # like this, didn't store the result
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### End Click temporary chat Button #######################
+
+  ####################### Start Image Prompt #######################
+  - index: 400
+    action: "ImagePrompt"
+    description: "Check if the request has a Image Prompt"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "ImagePrompts"
+        type: "array"
+    workflow:
+      - index: 0
+        action: "Click"
+        description: "Click upload file icon"
+        params:
+          - 'button[id="upload-file-btn"]'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 1
+        action: "UploadFiles"
+        description: "Prepare to intercept upload image dialog"
+        params:
+          - "#ImagePrompts#"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 2
+        action: "Click"
+        description: "Click the folder image button"
+        params:
+          - '.group.__menu-item.pe-8.gap-1\.5:not(.not-touch\:hidden)'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 3
+        action: "GetElement"
+        description: "Get the run button"
+        params:
+          - 'button#composer-submit-button:not([disabled])'
+        result:
+          - result_index: 0
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "LOOP"
+              no_error: "CONTINUE"
+  ####################### End Image Prompt #######################
+
+  ####################### Start Input User Prompt #######################
+  - index: 500
+    action: "BuildPrompt"
+    description: "Check if the request has a User Prompt"
+    params:
+      - "#REQUEST#"
+      - "true"
+    result:
+      - result_index: 0
+        name: "UserPrompt"
+        type: "string"
+      - result_index: 1
+        type: "error"
+        policy:
+          no_error: "DO-WORKFLOW"
+          has_error: "FAILED"
+    workflow:
+      - index: 0
+        action: "ConvertReturnToParagraphs"
+        description: "Convert the User Prompt return to paragraphs"
+        params:
+          - "#UserPrompt#"
+        result:
+          - result_index: 0
+            name: "HtmlUserPrompt"
+            type: "string"
+      - index: 1
+        action: "InInnerHTML"
+        description: "Input the User Prompt to the input box"
+        params:
+          - 'div[id="prompt-textarea"]'
+          - "#HtmlUserPrompt#"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              no_error: "CONTINUE"
+              has_error: "FAILED"
+  ####################### End Input User Prompt #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 600
+    action: "Click"
+    description: "Click the run button"
+    params: ['button[id="composer-submit-button"]', '2500']
+    result:
+      - result_index: 0 # like this, didn't store the result
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### End Click Run Button #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 700
+    action: "ResponseData"
+    description: "Get data from proxy"
+    params:
+      - "#PAGE#"
+      - "#PAGE-DATA-CHANNEL#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "LOOP"
+  ####################### End Click Run Button #######################

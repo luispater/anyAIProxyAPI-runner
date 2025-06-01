@@ -1,0 +1,837 @@
+version: "1"
+name: "chat_completions-textfile"
+need_report_token: true
+workflow:
+  - index: 50
+    action: "DoRunner"
+    params:
+      - "prepare-chat_completions"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILBACK"
+    failback:
+      action: "Click"
+      description: "Click the logo"
+      params:
+        - 'a[href="/prompts/new_chat"]'
+        - "2500"
+      result:
+        - result_index: 0 # like this, didn't store the result
+          type: "error"
+          policy:
+            has_error: "FAILED"
+  - index: 55
+    action: "Model"
+    description: "get the request model name"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "BREAK"
+      - result_index: 1
+        name: "modelName"
+        type: "string"
+    workflow:
+      - index: 100
+        action: "DoRunner"
+        params:
+          - "choose-model"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILBACK"
+
+  ####################### Start Get init tokens #######################
+  - index: 100
+    action: "GetInnerText"
+    description: "Get the token"
+    params:
+      - "div.token-count-container span"
+    result:
+      - result_index: 0
+        name: "SystemTokens"
+        type: "string"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### Start Get init tokens #######################
+
+  ####################### Start Max Tokens #######################
+  - index: 200
+    action: "MaxTokens"
+    description: "Check if the request has a max_tokens"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        name: "hasMaxTokens"
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "maxTokens"
+        type: "string"
+    workflow:
+      - index: 0
+        action: "GetElement"
+        description: "Check if the max output tokens setting is visible"
+        params:
+          - 'input[aria-label="Maximum output tokens"]'
+        retry: 1
+        result:
+          - result_index: 0
+            name: "maxTokensInputLocator"
+            type: "object"
+          - result_index: 1
+            name: "settingsError"
+            type: "error"
+            policy:
+              has_error: "FAILBACK"
+        failback:
+          action: "Click"
+          description: "Click the Expand or collapse advanced settings button"
+          params: ['button[aria-label="Expand or collapse advanced settings"]', '2500']
+          result:
+            - result_index: 0 # like this, didn't store the result
+              type: "error"
+              policy:
+                has_error: "FAILED"
+      - index: 1
+        action: "IsVisibleBySelector"
+        description: "Check the last call result maxTokensInputLocator is visible"
+        params:
+          - 'input[aria-label="Maximum output tokens"]'
+        result:
+          - result_index: 0
+            name: "maxTokensInputVisible"
+            type: "bool"
+            policy:
+              is_true: "CONTINUE"
+              is_false: "FAILBACK"
+        failback:
+          action: "Click"
+          description: "Click the Expand or collapse advanced settings button"
+          params: ['button[aria-label="Expand or collapse advanced settings"]', '2500']
+          result:
+            - result_index: 0 # like this, didn't store the result
+              type: "error"
+              policy:
+                has_error: "FAILED"
+      - index: 2
+        action: "Input"
+        description: "Input the max tokens to maxTokensInput"
+        params:
+          - 'input[aria-label="Maximum output tokens"]'
+          - "#maxTokens#"
+          - "5000"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+  ####################### End Max Tokens #######################
+
+  ####################### Start Tools #######################
+  - index: 300
+    action: "Tools"
+    description: "Check if the request has a tools"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        name: "hasTools"
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW-IDX:100"
+          is_false: "DO-WORKFLOW-IDX:200"
+      - result_index: 1
+        name: "toolsJson"
+        type: "string"
+    workflow:
+      - index: 100
+        action: "AlwaysTrue"
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_true: "DO-WORKFLOW"
+        workflow:
+          - index: 0
+            action: "GetElement"
+            description: "Check if the tools tooltip setting is visible"
+            params:
+              - 'div[mattooltipposition="left"][mattooltipclass="settings-tooltip"][data-test-id="functionCallingTooltip"]'
+            retry: 1
+            result:
+              - result_index: 0
+                name: "functionCallingTooltip"
+                type: "object"
+              - result_index: 1
+                type: "error"
+                policy:
+                  has_error: "FAILBACK"
+            failback:
+              action: "Click"
+              description: "Click the Expand or collapse advanced settings button"
+              params: ['button[aria-label="Expand or collapse tools"]', '2500']
+              result:
+                - result_index: 0 # like this, didn't store the result
+                  type: "error"
+                  policy:
+                    has_error: "FAILED"
+          - index: 1
+            action: "IsVisibleBySelector"
+            description: "Check the last call result functionCallingTooltip is visible"
+            params:
+              - 'div[mattooltipposition="left"][mattooltipclass="settings-tooltip"][data-test-id="functionCallingTooltip"]'
+            result:
+              - result_index: 0
+                name: "functionCallingTooltipVisible"
+                type: "bool"
+                policy:
+                  is_true: "CONTINUE"
+                  is_false: "FAILBACK"
+            failback:
+              action: "Click"
+              description: "Click the Expand or collapse advanced settings button"
+              params: ['button[aria-label="Expand or collapse tools"]', '2500']
+              result:
+                - result_index: 0 # like this, didn't store the result
+                  type: "error"
+                  policy:
+                    has_error: "FAILED"
+          - index: 2
+            action: "GetElement"
+            description: "Check if the tools tooltip toggle is checked"
+            params:
+              - 'mat-slide-toggle.function-calling-toggle.mat-mdc-slide-toggle-checked'
+            retry: 1
+            result:
+              - result_index: 0
+                name: "functionCallingTooltipToggle"
+                type: "object"
+              - result_index: 1
+                type: "error"
+                policy:
+                  has_error: "FAILBACK"
+            failback:
+              action: "Click"
+              description: "Click the tools tooltip toggle to checked"
+              params: ['mat-slide-toggle.function-calling-toggle', '2500']
+              result:
+                - result_index: 0 # like this, didn't store the result
+                  type: "error"
+                  policy:
+                    has_error: "FAILED"
+          - index: 3
+            action: "Click"
+            description: "Click the edit button"
+            params:
+              - 'button[aria-label="Edit function declarations"]'
+              - "2500"
+            result:
+              - result_index: 0 # like this, didn't store the result
+                type: "error"
+                policy:
+                  has_error: "FAILED"
+          - index: 4
+            action: "Input"
+            description: "Input the tools json"
+            params:
+              - 'ms-edit-function-declarations-dialog textarea'
+              - "#toolsJson#"
+              - "5000"
+            result:
+              - result_index: 0
+                type: "error"
+                policy:
+                  has_error: "FAILED"
+          - index: 5
+            action: "Click"
+            description: "Click the save button"
+            params:
+              - 'ms-edit-function-declarations-dialog button[aria-label="Save the current function declarations"]'
+              - "2500"
+            result:
+              - result_index: 0 # like this, didn't store the result
+                type: "error"
+                policy:
+                  has_error: "FAILED"
+      - index: 200
+        action: "AlwaysTrue"
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_true: "DO-WORKFLOW"
+        workflow:
+          - index: 0
+            action: "GetElement"
+            description: "Check if the tools tooltip setting is visible"
+            params:
+              - 'div[mattooltipposition="left"][mattooltipclass="settings-tooltip"][data-test-id="functionCallingTooltip"]'
+            retry: 1
+            result:
+              - result_index: 0
+                name: "functionCallingTooltip"
+                type: "object"
+              - result_index: 1
+                type: "error"
+                policy:
+                  has_error: "FAILBACK"
+            failback:
+              action: "Click"
+              description: "Click the Expand or collapse advanced settings button"
+              params: ['button[aria-label="Expand or collapse tools"]', '2500']
+              result:
+                - result_index: 0 # like this, didn't store the result
+                  type: "error"
+                  policy:
+                    has_error: "FAILED"
+          - index: 1
+            action: "IsVisibleBySelector"
+            description: "Check the last call result functionCallingTooltip is visible"
+            params:
+              - 'div[mattooltipposition="left"][mattooltipclass="settings-tooltip"][data-test-id="functionCallingTooltip"]'
+            result:
+              - result_index: 0
+                name: "functionCallingTooltipVisible"
+                type: "bool"
+                policy:
+                  is_true: "CONTINUE"
+                  is_false: "FAILBACK"
+            failback:
+              action: "Click"
+              description: "Click the Expand or collapse advanced settings button"
+              params: ['button[aria-label="Expand or collapse tools"]', '2500']
+              result:
+                - result_index: 0 # like this, didn't store the result
+                  type: "error"
+                  policy:
+                    has_error: "FAILED"
+          - index: 2
+            action: "GetElement"
+            description: "Check if the tools tooltip toggle is checked"
+            params:
+              - 'mat-slide-toggle.function-calling-toggle.mat-mdc-slide-toggle-checked'
+            retry: 1
+            result:
+              - result_index: 0
+                name: "functionCallingTooltipToggle"
+                type: "object"
+              - result_index: 1
+                type: "error"
+                policy:
+                  no_error: "FAILBACK"
+            failback:
+              action: "Click"
+              description: "Click the tools tooltip toggle to unchecked"
+              params: ['mat-slide-toggle.function-calling-toggle.mat-mdc-slide-toggle-checked', '2500']
+              result:
+                - result_index: 0 # like this, didn't store the result
+                  type: "error"
+                  policy:
+                    has_error: "FAILED"
+  ####################### End Tools #######################
+
+  ####################### Start Temperature #######################
+  - index: 400
+    action: "Temperature"
+    description: "Check if the request has a temperature"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "Temperature"
+        type: "string"
+    workflow:
+      - index: 1
+        action: "Input"
+        description: "Input the Temperature"
+        params:
+          - 'div[data-test-id="temperatureSliderContainer"] input[aria-invalid="false"]'
+          - "#Temperature#"
+          - "5000"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+  ####################### End Temperature #######################
+
+  ####################### Start Top P #######################
+  - index: 500
+    action: "TopP"
+    description: "Check if the request has a TopP"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "TopP"
+        type: "string"
+    workflow:
+      - index: 0
+        action: "GetElement"
+        description: "Check if the Top P setting is visible"
+        params:
+          - 'ms-slider[title="Top P set of tokens to consider during generation."] input[aria-invalid="false"]'
+        retry: 1
+        result:
+          - result_index: 0
+            name: "topPInputLocator"
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "FAILBACK"
+        failback:
+          action: "Click"
+          description: "Click the Expand or collapse advanced settings button"
+          params: [ 'button[aria-label="Expand or collapse advanced settings"]', '2500' ]
+          result:
+            - result_index: 0 # like this, didn't store the result
+              type: "error"
+              policy:
+                has_error: "FAILED"
+      - index: 1
+        action: "IsVisibleBySelector"
+        description: "Check the last call result topPInputLocator is visible"
+        params:
+          - 'ms-slider[title="Top P set of tokens to consider during generation."] input[aria-invalid="false"]'
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_true: "CONTINUE"
+              is_false: "FAILBACK"
+        failback:
+          action: "Click"
+          description: "Click the Expand or collapse advanced settings button"
+          params: [ 'button[aria-label="Expand or collapse advanced settings"]', '2500' ]
+          result:
+            - result_index: 0 # like this, didn't store the result
+              type: "error"
+              policy:
+                has_error: "FAILED"
+      - index: 2
+        action: "Input"
+        description: "Input the Top P"
+        params:
+          - 'ms-slider[title="Top P set of tokens to consider during generation."] input[aria-invalid="false"]'
+          - "#TopP#"
+          - "5000"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+  ####################### End Top P #######################
+
+  ####################### Start Stop Sequence #######################
+  - index: 600
+    action: "StopSequence"
+    description: "Check if the request has a Stop Sequence"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "StopSequence"
+        type: "string"
+    workflow:
+      - index: 0
+        action: "GetElement"
+        description: "Check if the stop sequence setting is visible"
+        params:
+          - 'input[aria-label="Add stop token"]'
+        retry: 1
+        result:
+          - result_index: 0
+            name: "stopInputLocator"
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "FAILBACK"
+        failback:
+          action: "Click"
+          description: "Click the Expand or collapse advanced settings button"
+          params: [ 'button[aria-label="Expand or collapse advanced settings"]', '2500' ]
+          result:
+            - result_index: 0 # like this, didn't store the result
+              type: "error"
+              policy:
+                has_error: "FAILED"
+      - index: 1
+        action: "IsVisibleBySelector"
+        description: "Check the last call result stopInputLocator is visible"
+        params:
+          - 'input[aria-label="Add stop token"]'
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_true: "CONTINUE"
+              is_false: "FAILBACK"
+        failback:
+          action: "Click"
+          description: "Click the Expand or collapse advanced settings button"
+          params: [ 'button[aria-label="Expand or collapse advanced settings"]', '2500' ]
+          result:
+            - result_index: 0 # like this, didn't store the result
+              type: "error"
+              policy:
+                has_error: "FAILED"
+      - index: 2
+        action: "Input"
+        description: "Input the Top P"
+        params:
+          - 'input[aria-label="Add stop token"]'
+          - "#StopSequence#"
+          - "5000"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+  ####################### End Stop Sequence #######################
+
+  ####################### Start Tools Prompt #######################
+  - index: 700
+    action: "ToolPrompt"
+    description: "Check if the request has a Tool Prompt"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "ToolPrompt"
+        type: "string"
+    workflow:
+      - index: 0
+        action: "Input"
+        description: "Input the function response if the function response text area is visible"
+        params:
+          - 'textarea[placeholder="Enter function response"]'
+          - "#ToolPrompt#"
+          - "5000"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "BREAK"
+      - index: 1
+        action: "Click"
+        description: "Click the send response button"
+        params: [ 'button[mattooltip="Send response"]:not([disabled])', '1000' ]
+        result:
+          - result_index: 0 # like this, didn't store the result
+            type: "error"
+            policy:
+              no_error: "SKIP-GLOBAL-WORKFLOW-IDX:800,900"
+
+  ####################### End Tools Prompt #######################
+
+  ####################### Start Image Prompt #######################
+  - index: 800
+    action: "ImagePrompt"
+    description: "Check if the request has a Image Prompt"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "ImagePrompts"
+        type: "array"
+    workflow:
+      - index: 0
+        action: "Click"
+        description: "Click plus icon"
+        params:
+          - "ms-add-chunk-menu"
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 1
+        action: "UploadFiles"
+        description: "Prepare to intercept upload image dialog"
+        params:
+          - "#ImagePrompts#"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 2
+        action: "Click"
+        description: "Click the image button"
+        params:
+          - 'button[aria-label="Upload File"]'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 3
+        action: "Click"
+        description: "Click Agree to the copyright acknowledgement button"
+        params:
+          - 'button[aria-label="Agree to the copyright acknowledgement"]'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "CONTINUE"
+      - index: 4
+        action: "GetElement"
+        description: "Get the run button"
+        params:
+          - 'button[aria-label="Run"].run-button:not([disabled])'
+        result:
+          - result_index: 0
+            name: "runButton"
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "LOOP"
+              no_error: "CONTINUE"
+  ####################### End Image Prompt #######################
+
+  - index: 900
+    action: "GetInnerText"
+    description: "Get the token"
+    params:
+      - "div.token-count-container span"
+    result:
+      - result_index: 0
+        name: "Tokens"
+        type: "string"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "FAILED"
+
+  ####################### Start User Prompt #######################
+  - index: 1000
+    action: "TextFilePrompt"
+    description: "create text file prompt"
+    params:
+      - "#REQUEST#"
+      - "#TextFilePromptMinSize#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "FAILED"
+      - result_index: 1
+        name: "textFilePrompt"
+        type: "string"
+      - result_index: 2
+        type: "error"
+        policy:
+          has_error: "FAILED"
+    workflow:
+      - index: 0
+        action: "Click"
+        description: "Click plus icon"
+        params:
+          - "ms-add-chunk-menu"
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 1
+        action: "UploadFiles"
+        description: "Prepare to intercept upload image dialog"
+        params:
+          - "#textFilePrompt#"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 2
+        action: "Click"
+        description: "Click the image button"
+        params:
+          - 'button[aria-label="Upload File"]'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 3
+        action: "Click"
+        description: "Click Agree to the copyright acknowledgement button"
+        params:
+          - 'button[aria-label="Agree to the copyright acknowledgement"]'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "CONTINUE"
+      - index: 4
+        action: "GetElement"
+        description: "Get the run button"
+        params:
+          - 'button[aria-label="Run"].run-button:not([disabled])'
+        result:
+          - result_index: 0
+            name: "runButton"
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "LOOP"
+              no_error: "CONTINUE"
+  ####################### End User Prompt #######################
+
+  ####################### Start Get user prompt tokens #######################
+  - index: 1100
+    action: "GetInnerText"
+    description: "Get the token"
+    params:
+      - "div.token-count-container span"
+    result:
+      - result_index: 0
+        name: "InputTokens"
+        type: "string"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "DO-WORKFLOW"
+    workflow:
+      - index: 0
+        action: "StringEqual"
+        params:
+          - "#Tokens#"
+          - "#InputTokens#"
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_false: "BREAK"
+      - index: 1
+        action: "SleepMilliseconds"
+        description: "Sleep 200 millisecond"
+        params:
+          - "200"
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_true: "LOOP-PARENT"
+  ####################### End Get user prompt tokens #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 1200
+    action: "Click"
+    description: "Click the run button"
+    params: ['button[aria-label="Run"].run-button:not([disabled])', '1000']
+    result:
+      - result_index: 0 # like this, didn't store the result
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### End Click Run Button #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 1300
+    action: "ResponseData"
+    description: "Get data from proxy"
+    params:
+      - "#PAGE#"
+      - "#PAGE-DATA-CHANNEL#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "LOOP"
+  ####################### End Click Run Button #######################
+
+  ####################### Start Get end tokens #######################
+  - index: 1400
+    action: "GetInnerText"
+    description: "Get the token"
+    params:
+      - "div.token-count-container span"
+    result:
+      - result_index: 0
+        name: "EndTokens"
+        type: "string"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "CONTINUE"
+  ####################### Start Get end tokens #######################
+
+  ####################### Start Report tokens #######################
+  - index: 1500
+    action: "AIStudioTokens"
+    description: "Report the token to client"
+    params:
+      - "#SystemTokens#"
+      - "#InputTokens#"
+      - "#EndTokens#"
+    result:
+      - result_index: 0
+        name: "PromptTokens"
+        type: "uint64"
+      - result_index: 1
+        name: "CompletionTokens"
+        type: "uint64"
+      - result_index: 2
+        name: "TotalTokens"
+        type: "uint64"
+      - result_index: 3
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### Start Report tokens #######################

@@ -1,0 +1,25 @@
+version: "1"
+name: "init"
+workflow:
+  - index: 1
+    action: "Click"
+    description: "Click plus icon"
+    params:
+      - "ms-add-chunk-menu"
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  - index: 2
+    action: "Click"
+    description: "Click the image button"
+    params:
+      - 'button[aria-label="Upload File"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"

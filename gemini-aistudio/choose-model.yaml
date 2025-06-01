@@ -1,0 +1,52 @@
+version: "1"
+name: "choose-model"
+workflow:
+  - index: 100
+    action: "Model"
+    description: "get the request model name"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+          is_false: "BREAK"
+      - result_index: 1
+        name: "modelName"
+        type: "string"
+  - index: 200
+    action: "Click"
+    description: "Click the model list"
+    params:
+      - "ms-prompt-run-settings .model-selector-container"
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  - index: 300
+    action: "ChooseModelByName"
+    description: "Search the model element by name"
+    params:
+      - "#modelName#"
+      - "div.base-model-subtitle.gmat-body-small"
+      - "div.model-category-container"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "BREAK"
+  - index: 400
+    action: "MouseClick"
+    description: "Click the 10,10 to close the settings menu"
+    params:
+      - '10'
+      - '10'
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          no_error: "CONTINUE"
+          has_error: "FAILED"

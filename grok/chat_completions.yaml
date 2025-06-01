@@ -1,0 +1,226 @@
+version: "1"
+name: "chat_completions"
+need_report_token: false
+workflow:
+  ####################### Start Click the new chat button #######################
+  - index: 100
+    action: "Click"
+    params:
+      - 'a[type="button"][href="/"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "CONTINUE"
+          no_error: "CONTINUE"
+  ####################### End Click the new chat button #######################
+
+  ####################### Start Click the Switch to Private Chat button #######################
+  - index: 200
+    action: "Click"
+    params:
+      - 'a[href="/chat#private"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "CONTINUE"
+          no_error: "CONTINUE"
+  ####################### Start Click the Switch to Private Chat button #######################
+
+  ####################### Start Click the Think button #######################
+  - index: 300
+    action: "ReasoningEffort"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW-IDX:0"
+          is_false: "DO-WORKFLOW-IDX:1"
+      - result_index: 1
+        name: "reasoningEffort"
+        type: "string"
+    workflow:
+      - index: 0
+        action: "StringEqual"
+        description: "StringEqual the reasoning effort option"
+        params:
+          - "#reasoningEffort#"
+          - ""
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_false: "DO-WORKFLOW"
+              is_true: "CONTINUE"
+        workflow:
+          - index: 0
+            action: "Click"
+            description: "Click the reasoning effort option"
+            params:
+              - 'button[aria-label="Think"][aria-pressed="false"]'
+              - "2500"
+            result:
+              - result_index: 0
+                type: "error"
+                policy:
+                  has_error: "BREAK"
+                  no_error: "BREAK"
+      - index: 1
+        action: "Click"
+        description: "Click the reasoning effort option"
+        params:
+          - 'button[aria-label="Think"][aria-pressed="true"]'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "BREAK"
+              no_error: "BREAK"
+  ####################### End Click the Think button #######################
+
+  ####################### Start Image Prompt #######################
+  - index: 400
+    action: "ImagePrompt"
+    description: "Check if the request has a Image Prompt"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "DO-WORKFLOW"
+          is_false: "CONTINUE"
+      - result_index: 1
+        name: "ImagePrompts"
+        type: "array"
+    workflow:
+      - index: 0
+        action: "Click"
+        description: "Click attach icon"
+        params:
+          - ".group-hover\\/attach-button\\:text-fg-primary"
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 1
+        action: "UploadFiles"
+        description: "Prepare to intercept upload image dialog"
+        params:
+          - "#ImagePrompts#"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 2
+        action: "Click"
+        description: "Click the folder image button"
+        params:
+          - '.lucide-folder'
+          - "2500"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 3
+        action: "GetElement"
+        description: "Get the run button"
+        params:
+          - 'button[type="submit"]:not([disabled])'
+          - "1000"
+        result:
+          - result_index: 0
+            name: "runButton"
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "LOOP"
+              no_error: "CONTINUE"
+  ####################### End Image Prompt #######################
+
+  ####################### Start Input User Prompt #######################
+  - index: 500
+    action: "BuildPrompt"
+    description: "Check if the request has a User Prompt"
+    params:
+      - "#REQUEST#"
+      - "true"
+    result:
+      - result_index: 0
+        name: "UserPrompt"
+        type: "string"
+      - result_index: 1
+        type: "error"
+        policy:
+          no_error: "DO-WORKFLOW"
+          has_error: "FAILED"
+    workflow:
+      - index: 0
+        action: "Input"
+        description: "Input the User Prompt to the input box"
+        params:
+          - 'textarea[dir="auto"]'
+          - "#UserPrompt#"
+          - "5000"
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              no_error: "CONTINUE"
+              has_error: "FAILED"
+  ####################### End Input User Prompt #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 600
+    action: "Click"
+    description: "Click the run button"
+    params: ['button[type="submit"]', '2500']
+    result:
+      - result_index: 0 # like this, didn't store the result
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### End Click Run Button #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 700
+    action: "ResponseData"
+    description: "Get data from proxy"
+    params:
+      - "#PAGE#"
+      - "#PAGE-DATA-CHANNEL#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "LOOP"
+  ####################### End Click Run Button #######################
+
+  ####################### End Click the logo #######################
+  - index: 800
+    action: "Click"
+    params:
+      - 'a[type="button"][href="/"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "CONTINUE"
+          no_error: "CONTINUE"
+####################### End Click the logo #######################

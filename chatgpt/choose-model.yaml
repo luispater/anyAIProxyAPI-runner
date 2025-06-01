@@ -1,0 +1,46 @@
+version: "1"
+name: "choose-model"
+workflow:
+  - index: 100
+    action: "Model"
+    description: "get the request model name"
+    params:
+      - "#REQUEST#"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+          is_false: "BREAK"
+      - result_index: 1
+        name: "modelName"
+        type: "string"
+
+  ####################### Start Click the new chat button #######################
+  - index: 200
+    action: "Click"
+    params:
+      - 'div:not(.no-draggable) > button[aria-label^="Model selector"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "CONTINUE"
+  ####################### End Click the new chat button #######################
+
+  ####################### Start Click the new chat button #######################
+  - index: 300
+    action: "ChooseChatGPTModelByName"
+    params:
+      - '#modelName#'
+      - 'div[role="menuitem"]'
+      - "More models"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "CONTINUE"
+  ####################### End Click the new chat button #######################

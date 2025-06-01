@@ -1,0 +1,81 @@
+version: "1"
+name: "init"
+workflow:
+  ####################### Start check auto save #######################
+  - index: 100
+    action: "Click"
+    description: "Click the sittings menu"
+    params:
+      - 'button[aria-label="Open settings menu"]'
+      - '2500'
+    retry: 0
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          no_error: "DO-WORKFLOW"
+          has_error: "FAILED"
+    workflow:
+      - index: 0
+        action: "GetElement"
+        description: "Check if the auto save setting is visible"
+        params:
+          - 'button[aria-label="Autosave toggle"]' #[aria-checked="false"]
+        result:
+          - result_index: 0
+            name: "autoSaveLocator"
+            type: "object"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "BREAK"
+      - index: 1
+        action: "GetElementAttributeBySelector"
+        description: "Get the auto save setting aria-checked attribute"
+        params:
+          - 'button[aria-label="Autosave toggle"]'
+          - "aria-checked"
+        result:
+          - result_index: 0
+            name: "autoSaveChecked"
+            type: "string"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "BREAK"
+      - index: 2
+        action: "StringEqual"
+        description: "check if the auto save setting is checked"
+        params:
+          - "#autoSaveChecked#"
+          - "false"
+        result:
+          - result_index: 0
+            type: "bool"
+            policy:
+              is_true: "BREAK"
+      - index: 3
+        action: "Click"
+        description: "Click the auto save setting"
+        params:
+          - 'button[aria-label="Autosave toggle"]'
+          - '2500'
+        result:
+          - result_index: 0
+            type: "error"
+            policy:
+              has_error: "BREAK"
+  - index: 200
+    action: "MouseClick"
+    description: "Click the 10,10 to close the settings menu"
+    params:
+      - '10'
+      - '10'
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          no_error: "CONTINUE"
+          has_error: "FAILED"
+
+  ####################### End check auto save #######################
