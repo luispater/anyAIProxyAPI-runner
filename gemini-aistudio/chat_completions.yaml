@@ -733,6 +733,7 @@ workflow:
     description: "Check if the request has a User Prompt"
     params:
       - "#REQUEST#"
+      - "false"
     result:
       - result_index: 0
         name: "UserPrompt"
