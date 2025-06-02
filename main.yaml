@@ -1,17 +1,28 @@
 version: "1"
-debug: false
+debug: true
 camoufox-path: "/Users/luis/Library/Caches/camoufox/Camoufox.app/Contents/MacOS/camoufox"
 api-port: "2048"
 headless: false
 instance:
-  - name: "gemini-aistudio"
+#  - name: "gemini-aistudio"
+#    adapter: "gemini-aistudio"
+#    proxy-url: ""
+#    url: "https://aistudio.google.com/prompts/new_chat"
+#    sniff-port: "3120"
+#    sniff-domain: "*.google.com"
+#    auth-file: "auth/gemini-aistudio.json"
+#    runner:
+#      init: "init-system"
+#      chat_completions: "chat_completions"
+#      context_canceled: "context-canceled"
+  - name: "chatgpt"
+    adapter: "chatgpt"
     proxy-url: ""
-    url: "https://aistudio.google.com/prompts/new_chat"
+    url: "https://chatgpt.com/?model=gpt-4-1&temporary-chat=true"
     sniff-port: "3120"
-    sniff-domain: "*.google.com"
-    auth-file: "auth/gemini-aistudio.json"
+    sniff-domain: "chatgpt.com"
+    auth-file: "auth/chatgpt.json"
     runner:
-      init: "init-system"
+      init: "init"
       chat_completions: "chat_completions"
       context_canceled: "context-canceled"
-
