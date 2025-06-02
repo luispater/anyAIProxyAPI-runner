@@ -40,62 +40,60 @@ workflow:
               no_error: "CONTINUE"
               has_error: "FAILED"
 
+  ####################### Start StartSniffing #######################
+  - index: 200
+    action: "StartSniffing"
+    description: "Start sniff"
+    params: [ '#PROXY#' ]
+  ####################### End StartSniffing #######################
 
-#
-#  ####################### Start StartSniffing #######################
-#  - index: 200
-#    action: "StartSniffing"
-#    description: "Start sniff"
-#    params: [ '#PROXY#' ]
-#  ####################### End StartSniffing #######################
-#
-#  ####################### Start Sleep 1 second #######################
-#  - index: 300
-#    action: "SleepMilliseconds"
-#    description: "Sleep 200 millisecond"
-#    params:
-#      - "200"
-#    result:
-#      - result_index: 0
-#        type: "bool"
-#        policy:
-#          is_true: "CONTINUE"
-#  ####################### End Sleep 1 second #######################
-#
-#  ####################### Start Click Run Button #######################
-#  - index: 400
-#    action: "Click"
-#    description: "Click the run button"
-#    params: ['button[id="composer-submit-button"]', '2500']
-#    result:
-#      - result_index: 0 # like this, didn't store the result
-#        type: "error"
-#        policy:
-#          has_error: "FAILED"
-#  ####################### End Click Run Button #######################
-#
-#  ####################### Start Click Run Button #######################
-#  - index: 500
-#    action: "GetDataFromProxy"
-#    description: "Get data from proxy"
-#    params:
-#      - "#PROXY#"
-#      - "#PROXY-DATA-CHANNEL#"
-#    retry: 65536
-#    result:
-#      - result_index: 0
-#        type: "bool"
-#        policy:
-#          is_true: "CONTINUE"
-#      - result_index: 1
-#        type: "error"
-#        policy:
-#          has_error: "LOOP"
-#  ####################### End Click Run Button #######################
-#
-#  ####################### Start StartSniffing #######################
-#  - index: 700
-#    action: "StopSniffing"
-#    description: "Stop sniff"
-#    params: [ '#PROXY#' ]
-#  ####################### End StartSniffing #######################
+  ####################### Start Sleep 1 second #######################
+  - index: 300
+    action: "SleepMilliseconds"
+    description: "Sleep 200 millisecond"
+    params:
+      - "200"
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+  ####################### End Sleep 1 second #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 400
+    action: "Click"
+    description: "Click the run button"
+    params: ['button[id="composer-submit-button"]', '2500']
+    result:
+      - result_index: 0 # like this, didn't store the result
+        type: "error"
+        policy:
+          has_error: "FAILED"
+  ####################### End Click Run Button #######################
+
+  ####################### Start Click Run Button #######################
+  - index: 500
+    action: "GetDataFromProxy"
+    description: "Get data from proxy"
+    params:
+      - "#PROXY#"
+      - "#PROXY-DATA-CHANNEL#"
+    retry: 65536
+    result:
+      - result_index: 0
+        type: "bool"
+        policy:
+          is_true: "CONTINUE"
+      - result_index: 1
+        type: "error"
+        policy:
+          has_error: "LOOP"
+  ####################### End Click Run Button #######################
+
+  ####################### Start StartSniffing #######################
+  - index: 700
+    action: "StopSniffing"
+    description: "Stop sniff"
+    params: [ '#PROXY#' ]
+  ####################### End StartSniffing #######################
