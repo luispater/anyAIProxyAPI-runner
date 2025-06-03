@@ -6,7 +6,7 @@ headless: false
 instance:
   - name: "gemini-aistudio"
     adapter: "gemini-aistudio"
-    proxy-url: "socks5://192.168.1.1:7890/"
+    proxy-url: ""
     url: "https://aistudio.google.com/prompts/new_chat"
     sniff-port: "3120"
     sniff-domain: "*.google.com"
@@ -17,16 +17,29 @@ instance:
       init: "init-system"
       chat_completions: "chat_completions"
       context_canceled: "context-canceled"
-  - name: "chatgpt"
-    adapter: "chatgpt"
-    proxy-url: ""
-    url: "https://chatgpt.com/?temporary-chat=true"
-    sniff-port: "3121"
-    sniff-domain: "chatgpt.com"
-    auth:
-      file: "auth/chatgpt.json"
-      check: 'div[id="sidebar-header"]'
-    runner:
-      init: "init"
-      chat_completions: "chat_completions"
-      context_canceled: "context-canceled"
+#  - name: "chatgpt"
+#    adapter: "chatgpt"
+#    proxy-url: ""
+#    url: "https://chatgpt.com/?temporary-chat=true"
+#    sniff-port: "3121"
+#    sniff-domain: "chatgpt.com"
+#    auth:
+#      file: "auth/chatgpt.json"
+#      check: 'div[id="sidebar-header"]'
+#    runner:
+#      init: "init"
+#      chat_completions: "chat_completions"
+#      context_canceled: "context-canceled"
+#  - name: "grok" #rest/app-chat/conversations/new
+#    adapter: "grok"
+#    proxy-url: ""
+#    url: "https://grok.com/"
+#    sniff-port: "3122"
+#    sniff-domain: "grok.com"
+#    auth:
+#      file: "auth/grok.json"
+#      check: 'button[aria-haspopup="menu"][id="radix-«r3a»"]'
+#    runner:
+#      init: "init-system"
+#      chat_completions: "chat_completions"
+#      context_canceled: "context-canceled"

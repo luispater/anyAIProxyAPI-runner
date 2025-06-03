@@ -1,0 +1,14 @@
+version: "1"
+name: "context-canceled"
+workflow:
+  - index: 100
+    action: "Click"
+    params:
+      - 'a[data-testid="create-new-chat-button"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "CONTINUE"
