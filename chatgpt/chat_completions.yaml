@@ -2,7 +2,22 @@ version: "1"
 name: "chat_completions"
 need_report_token: false
 workflow:
+  ####################### Start Click the new chat button #######################
   - index: 100
+    action: "Click"
+    params:
+      - 'a[data-testid="create-new-chat-button"]'
+      - "2500"
+    result:
+      - result_index: 0
+        type: "error"
+        policy:
+          has_error: "FAILED"
+          no_error: "CONTINUE"
+  ####################### End Click the new chat button #######################
+
+  ####################### Start Input User Prompt #######################
+  - index: 200
     action: "BuildPrompt"
     description: "Check if the request has a User Prompt"
     params:
@@ -31,7 +46,7 @@ workflow:
         action: "InInnerHTML"
         description: "Input the User Prompt to the input box"
         params:
-          - '#prompt-textarea'
+          - 'div[id="prompt-textarea"]'
           - "#HtmlUserPrompt#"
         result:
           - result_index: 0
@@ -39,16 +54,17 @@ workflow:
             policy:
               no_error: "CONTINUE"
               has_error: "FAILED"
+  ####################### End Input User Prompt #######################
 
   ####################### Start StartSniffing #######################
-  - index: 200
+  - index: 300
     action: "StartSniffing"
     description: "Start sniff"
     params: [ '#PROXY#' ]
   ####################### End StartSniffing #######################
 
   ####################### Start Sleep 1 second #######################
-  - index: 300
+  - index: 400
     action: "SleepMilliseconds"
     description: "Sleep 200 millisecond"
     params:
@@ -61,7 +77,7 @@ workflow:
   ####################### End Sleep 1 second #######################
 
   ####################### Start Click Run Button #######################
-  - index: 400
+  - index: 500
     action: "Click"
     description: "Click the run button"
     params: ['button[id="composer-submit-button"]', '2500']
@@ -73,7 +89,7 @@ workflow:
   ####################### End Click Run Button #######################
 
   ####################### Start Click Run Button #######################
-  - index: 500
+  - index: 600
     action: "GetDataFromProxy"
     description: "Get data from proxy"
     params:
