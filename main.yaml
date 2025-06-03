@@ -4,24 +4,28 @@ camoufox-path: "/Users/luis/Library/Caches/camoufox/Camoufox.app/Contents/MacOS/
 api-port: "2048"
 headless: false
 instance:
-#  - name: "gemini-aistudio"
-#    adapter: "gemini-aistudio"
-#    proxy-url: "socks5://192.168.1.1:7890/"
-#    url: "https://aistudio.google.com/prompts/new_chat"
-#    sniff-port: "3120"
-#    sniff-domain: "*.google.com"
-#    auth-file: "auth/gemini-aistudio.json"
-#    runner:
-#      init: "init-system"
-#      chat_completions: "chat_completions"
-#      context_canceled: "context-canceled"
+  - name: "gemini-aistudio"
+    adapter: "gemini-aistudio"
+    proxy-url: "socks5://192.168.1.1:7890/"
+    url: "https://aistudio.google.com/prompts/new_chat"
+    sniff-port: "3120"
+    sniff-domain: "*.google.com"
+    auth:
+      file: "auth/gemini-aistudio.json"
+      check: "ms-settings-menu"
+    runner:
+      init: "init-system"
+      chat_completions: "chat_completions"
+      context_canceled: "context-canceled"
   - name: "chatgpt"
     adapter: "chatgpt"
     proxy-url: ""
     url: "https://chatgpt.com/?temporary-chat=true"
-    sniff-port: "3120"
+    sniff-port: "3121"
     sniff-domain: "chatgpt.com"
-    auth-file: "auth/chatgpt.json"
+    auth:
+      file: "auth/chatgpt.json"
+      check: 'div[id="sidebar-header"]'
     runner:
       init: "init"
       chat_completions: "chat_completions"
