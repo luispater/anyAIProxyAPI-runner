@@ -17,7 +17,7 @@ instance:
 #      context_canceled: "context-canceled"
   - name: "chatgpt"
     adapter: "chatgpt"
-    proxy-url: "socks5://192.168.1.1:7890/"
+    proxy-url: ""
     url: "https://chatgpt.com/?temporary-chat=true"
     sniff-port: "3120"
     sniff-domain: "chatgpt.com"
