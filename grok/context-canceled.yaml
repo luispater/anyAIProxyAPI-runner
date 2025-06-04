@@ -4,11 +4,11 @@ workflow:
   - index: 100
     action: "Click"
     params:
-      - 'a[data-testid="create-new-chat-button"]'
+      - 'a[type="button"][href="/"]'
       - "2500"
     result:
       - result_index: 0
         type: "error"
         policy:
-          has_error: "FAILED"
+          has_error: "CONTINUE"
           no_error: "CONTINUE"
