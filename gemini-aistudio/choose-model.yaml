@@ -19,7 +19,7 @@ workflow:
     action: "Click"
     description: "Click the model list"
     params:
-      - "ms-prompt-run-settings ms-model-selector div.model-selector-container"
+      - "ms-prompt-run-settings .model-selector-container"
       - "2500"
     result:
       - result_index: 0
