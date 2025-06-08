@@ -4,15 +4,10 @@ browser:
   use: "camoufox"
   camoufox-path: "/Users/luis/Library/Caches/camoufox/Camoufox.app/Contents/MacOS/camoufox"
   fingerprint-chromium-path: "/Applications/Chromium.app/Contents/MacOS/Chromium" #/Applications/Chromium.app/Contents/MacOS/Chromium --fingerprint=1000 --user-data-dir=/data/workspaces/anyAIProxyAPI/anyAIProxyAPI/chromium --timezone="America/Los_Angeles" --remote-debugging-port=9222 --ignore-certificate-errors --proxy-server="http=127.0.0.1:3122" --disable-web-security=true --no-first-run=true --no-default-browser-check=true --incognito=true --bwsi=true
-#  args:
-#    - "--fingerprint=1000"
-#    - "--timezone=America/Los_Angeles"
-#    - "--remote-debugging-port=9222"
-#    - "--ignore-certificate-errors"
 api-port: "2048"
 headless: false
 instance:
-  - name: "gemini-aistudio"
+  - name: "gemini-aistudio-notoken"
     adapter: "gemini-aistudio"
     proxy-url: ""
     url: "https://aistudio.google.com/prompts/new_chat"
