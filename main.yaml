@@ -9,9 +9,10 @@ browser:
     - "--lang=en-US"
     - "--accept-lang=en-US"
   user-data-dir: "/tmp/user-data"
+  keep-user-data: true
   proxy-url: ""
 api-port: "2048"
-headless: false
+headless: true
 instance-alone: true
 logfile: "any-ai-proxy.log"
 tokens: # Global tokens for API validation (optional)
@@ -35,43 +36,43 @@ instance:
     tokens: # Instance-specific tokens for API validation (optional)
       - "gemini-token-3"
       - "gemini-token-4"
-  - name: "chatgpt"
-    adapter: "chatgpt"
-    proxy-url: ""
-    url: "https://chatgpt.com/"
-    sniff-url:
-      - "https://chatgpt.com/backend-api/conversation"
-      - "https://chatgpt.com/backend-api/f/conversation"
-    auth:
-      file: "auth/chatgpt.json"
-      check: 'div[id="sidebar-header"]'
-    runner:
-      init: "init"
-      chat_completions: "chat_completions"
-      context_canceled: "context-canceled"
-  - name: "grok"
-    adapter: "grok"
-    proxy-url: ""
-    url: "https://grok.com/"
-    sniff-url:
-      - "https://grok.com/rest/app-chat/conversations/new"
-    auth:
-      file: "auth/grok.json"
-      check: 'a[href="/chat#private"]'
-    runner:
-      init: "init-system"
-      chat_completions: "chat_completions"
-      context_canceled: "context-canceled"
-  - name: "claude"
-    adapter: "claude"
-    proxy-url: ""
-    url: "https://claude.ai/"
-    sniff-url:
-      - "https://claude.ai/api/organizations/*/chat_conversations/*/completion"
-    auth:
-      file: "auth/claude.json"
-      check: 'span.text-start.block.truncate'
-    runner:
-      init: "init-system"
-      chat_completions: "chat_completions"
-      context_canceled: "context-canceled"
+#  - name: "chatgpt"
+#    adapter: "chatgpt"
+#    proxy-url: ""
+#    url: "https://chatgpt.com/"
+#    sniff-url:
+#      - "https://chatgpt.com/backend-api/conversation"
+#      - "https://chatgpt.com/backend-api/f/conversation"
+#    auth:
+#      file: "auth/chatgpt.json"
+#      check: 'div[id="sidebar-header"]'
+#    runner:
+#      init: "init"
+#      chat_completions: "chat_completions"
+#      context_canceled: "context-canceled"
+#  - name: "grok"
+#    adapter: "grok"
+#    proxy-url: ""
+#    url: "https://grok.com/"
+#    sniff-url:
+#      - "https://grok.com/rest/app-chat/conversations/new"
+#    auth:
+#      file: "auth/grok.json"
+#      check: 'a[href="/chat#private"]'
+#    runner:
+#      init: "init-system"
+#      chat_completions: "chat_completions"
+#      context_canceled: "context-canceled"
+#  - name: "claude"
+#    adapter: "claude"
+#    proxy-url: ""
+#    url: "https://claude.ai/"
+#    sniff-url:
+#      - "https://claude.ai/api/organizations/*/chat_conversations/*/completion"
+#    auth:
+#      file: "auth/claude.json"
+#      check: 'span.text-start.block.truncate'
+#    runner:
+#      init: "init-system"
+#      chat_completions: "chat_completions"
+#      context_canceled: "context-canceled"
