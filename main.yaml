@@ -9,12 +9,12 @@ browser:
     - "--lang=en-US"
     - "--accept-lang=en-US"
   user-data-dir: "/tmp/user-data"
-  keep-user-data: true
+  keep-user-data: false
   proxy-url: ""
 api-port: "2048"
-headless: true
+headless: false
 instance-alone: true
-logfile: "any-ai-proxy.log"
+#logfile: "any-ai-proxy.log"
 tokens: # Global tokens for API validation (optional)
   - "global-token-1"
   - "global-token-2"
@@ -33,6 +33,7 @@ instance:
       init: "init-system"
       chat_completions: "chat_completions"
       context_canceled: "context-canceled"
+      error_check: "error-check"
     tokens: # Instance-specific tokens for API validation (optional)
       - "gemini-token-3"
       - "gemini-token-4"

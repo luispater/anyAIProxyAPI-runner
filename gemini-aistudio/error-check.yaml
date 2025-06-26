@@ -1,0 +1,50 @@
+version: "1"
+name: "error-check"
+workflow:
+  ####################### Start error check #######################
+  - index: 100
+    action: "GetElement"
+    description: "Find the ms-callout element"
+    params:
+      - 'ms-callout'
+    retry: 0
+    result:
+      - result_index: 0
+        type: "object"
+      - result_index: 1
+        type: "error"
+        policy:
+          no_error: "DO-WORKFLOW"
+          has_error: "BREAK"
+    workflow:
+      - index: 100
+        action: "GetInnerText"
+        description: "Get error message"
+        params:
+          - "ms-callout .content-container"
+        result:
+          - result_index: 0
+            name: "ErrorMessage"
+            type: "string"
+          - result_index: 1
+            type: "error"
+            policy:
+              has_error: "BREAK"
+      - index: 200
+        action: "Click"
+        description: "Click the edit button"
+        params:
+          - 'ms-callout button'
+          - "2500"
+        result:
+          - result_index: 0 # like this, didn't store the result
+            type: "error"
+            policy:
+              has_error: "FAILED"
+      - index: 300
+        action: "ResponseError"
+        description: "Response the error message"
+        params:
+          - "#PAGE#"
+          - "#ErrorMessage#"
+  ####################### End error check #######################
