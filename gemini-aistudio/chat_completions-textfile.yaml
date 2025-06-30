@@ -139,6 +139,13 @@ workflow:
               has_error: "FAILED"
   ####################### End Max Tokens #######################
 
+  ####################### Start Error check #######################
+  - index: 250
+    action: "StartErrorCheck"
+    description: "Start the error check"
+    params: ['#PAGE#']
+  ####################### End Error check #######################
+
   ####################### Start Tools #######################
   - index: 300
     action: "Tools"
@@ -794,6 +801,13 @@ workflow:
         policy:
           has_error: "LOOP"
   ####################### End Click Run Button #######################
+
+  ####################### Start Stop error check #######################
+  - index: 1350
+    action: "StopErrorCheck"
+    description: "Stop the error check"
+    params: ['#PAGE#']
+  ####################### End Stop error check #######################
 
   ####################### Start Get end tokens #######################
   - index: 1400

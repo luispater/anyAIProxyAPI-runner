@@ -63,6 +63,13 @@ workflow:
           has_error: "FAILED"
   ####################### Start Get init tokens #######################
 
+  ####################### Start Error check #######################
+  - index: 90
+    action: "StartErrorCheck"
+    description: "Start the error check"
+    params: ['#PAGE#']
+  ####################### End Error check #######################
+
   ####################### Start System Prompt #######################
   - index: 100 #system prompt
     action: "SystemPrompt"
@@ -821,6 +828,13 @@ workflow:
         policy:
           has_error: "LOOP"
   ####################### End Click Run Button #######################
+
+  ####################### Start Stop error check #######################
+  - index: 1100
+    action: "StopErrorCheck"
+    description: "Stop the error check"
+    params: ['#PAGE#']
+  ####################### End Stop error check #######################
 
   ####################### Start Get end tokens #######################
   - index: 1200

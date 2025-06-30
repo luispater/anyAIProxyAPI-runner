@@ -12,3 +12,9 @@ workflow:
         policy:
           has_error: "FAILED"
           no_error: "CONTINUE"
+  ####################### Start Stop error check #######################
+  - index: 200
+    action: "StopErrorCheck"
+    description: "Stop the error check"
+    params: ['#PAGE#']
+  ####################### End Stop error check #######################
